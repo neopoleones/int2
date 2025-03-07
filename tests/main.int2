@@ -1,2 +1,4 @@
 // Some operation 1+2
-(("EVS"+"UTIN")=="CRYPTO")
+print (("EVS"+"UTIN")=="CRYPTO");
+print 42;
+print ("hola");

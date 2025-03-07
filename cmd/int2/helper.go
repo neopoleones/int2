@@ -7,13 +7,12 @@ import (
 	"strings"
 
 	"github.com/destr4ct/int2/internal/int2/ast/T"
-	"github.com/destr4ct/int2/internal/int2/ast/visitor"
 	"github.com/destr4ct/int2/internal/int2/scanner"
 	"github.com/destr4ct/int2/internal/int2/state"
 	"github.com/destr4ct/int2/internal/int2/token"
 )
 
-func getASTRepresentationOfExpr(raw string, cfg *state.Int2Configuration) (T.Expr, error) {
+func getTokens(raw string, cfg *state.Int2Configuration) ([]*token.Token, error) {
 	tokens := cfg.Scanner.Tokenize(raw)
 	if err := scanner.Validate(tokens); err != nil {
 		return nil, err
@@ -23,17 +22,31 @@ func getASTRepresentationOfExpr(raw string, cfg *state.Int2Configuration) (T.Exp
 		token.PrintTokens(tokens)
 	}
 
+	return tokens, nil
+}
+
+func getASTReproExpr(raw string, cfg *state.Int2Configuration) (T.Expr, error) {
+	tokens, err := getTokens(raw, cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	// Parse to AST
 	expr, err := cfg.Parser.ParseExpr(tokens)
 	if err != nil {
 		return nil, err
 	}
 
-	if cfg.VerboseRun {
-		fmt.Println("AST:", visitor.NewAstPrinter().Stringify(expr))
+	return expr, nil
+}
+
+func getASTRepro(raw string, cfg *state.Int2Configuration) ([]T.Stmt, error) {
+	tokens, err := getTokens(raw, cfg)
+	if err != nil {
+		return nil, err
 	}
 
-	return expr, nil
+	return cfg.Parser.Parse(tokens)
 }
 
 func getUserInput() string {

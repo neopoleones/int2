@@ -6,4 +6,6 @@ type Interpreter interface {
 	T.ExprVisitor
 
 	Evaluate(expr T.Expr) any
+	Execute(stmt T.Stmt)
+	Interpret(statements []T.Stmt)
 }

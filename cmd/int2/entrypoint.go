@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/destr4ct/int2/internal/int2/ast/visitor"
 	"github.com/destr4ct/int2/internal/int2/interpreter"
 	"github.com/destr4ct/int2/internal/int2/state"
 	"github.com/destr4ct/int2/internal/int2/utils"
@@ -31,7 +32,7 @@ func RunInterpreter(ctx context.Context, cfg *state.Int2Configuration) error {
 	defer runtimeErrorHandler()
 
 	for inp := getUserInput(); inp != TOKEN_EXIT; inp = getUserInput() {
-		ast, err := getASTRepresentationOfExpr(inp, cfg)
+		ast, err := getASTReproExpr(inp, cfg)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -51,14 +52,19 @@ func RunScript(ctx context.Context, cfg *state.Int2Configuration) error {
 		return state.ErrFailedReadFile
 	}
 
-	ast, err := getASTRepresentationOfExpr(scriptContent, cfg)
+	astStmt, err := getASTRepro(scriptContent, cfg)
 	if err != nil {
 		return err
 	}
 
-	res := cfg.Interpreter.Evaluate(ast)
-	fmt.Println("res:", res)
+	if cfg.VerboseRun {
+		fmt.Println("AST:")
+		for i, stmt := range astStmt {
+			fmt.Println(i, visitor.NewAstPrinter().Stringify(stmt))
+		}
+	}
 
+	cfg.Interpreter.Interpret(astStmt)
 	return nil
 }
 

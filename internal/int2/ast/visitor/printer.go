@@ -32,8 +32,8 @@ func (ap *AstPrinter) wrap(name string, expressionList ...T.Expr) string {
 	return sb.String()
 }
 
-func (ap *AstPrinter) Stringify(expr T.Expr) string {
-	return expr.Accept(ap).(string)
+func (ap *AstPrinter) Stringify(stmt T.Stmt) string {
+	return stmt.Accept(ap).(string)
 }
 
 func (ap *AstPrinter) VisitBinaryExpr(be *T.BinaryExpr) any {
@@ -63,6 +63,14 @@ func (ap *AstPrinter) VisitLiteral(be *T.LiteralExpr) any {
 	}
 
 	return be.Value
+}
+
+func (ap *AstPrinter) VisitPrintStmt(stmt *T.PrintStmt) any {
+	return ap.wrap("print", stmt.NestedExpr)
+}
+
+func (ap *AstPrinter) VisitExprStmt(stmt *T.ExprStmt) any {
+	return ap.wrap("expr", stmt.NestedExpr)
 }
 
 func NewAstPrinter() *AstPrinter {

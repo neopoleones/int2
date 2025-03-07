@@ -20,6 +20,9 @@ func (rdp *RecursiveDescentParser) ParseExpr(source []*token.Token) (T.Expr, err
 }
 
 func (rdp *RecursiveDescentParser) Parse(source []*token.Token) ([]T.Stmt, error) {
+	defer rdp.Reset()
+	rdp.sourceTokens = source
+
 	statements := make([]T.Stmt, 0)
 
 	for rdp.hasNextToken() {
@@ -47,11 +50,31 @@ func (rdp *RecursiveDescentParser) parseStatement() (T.Stmt, error) {
 }
 
 func (rdp *RecursiveDescentParser) parsePrintStatement() (T.Stmt, error) {
-	return nil, nil
+	expr, err := rdp.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = rdp.consumeConcrete(token.TSemicolon, "expected ';' after expression.")
+	if err != nil {
+		return nil, err
+	}
+
+	return T.MewPrintStmt(expr), nil
 }
 
 func (rdp *RecursiveDescentParser) parseExprStatement() (T.Stmt, error) {
-	return nil, nil
+	expr, err := rdp.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = rdp.consumeConcrete(token.TSemicolon, "expected ';' after expression.")
+	if err != nil {
+		return nil, err
+	}
+
+	return T.MewExprStmt(expr), nil
 }
 
 func (rdp *RecursiveDescentParser) parseExpression() (T.Expr, error) {

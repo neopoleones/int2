@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/destr4ct/int2/internal/int2/ast/T"
@@ -99,6 +100,19 @@ func (ev *Evaluator) VisitGroupingExpr(ge *T.GroupingExpr) any {
 
 func (ev *Evaluator) VisitLiteral(le *T.LiteralExpr) any {
 	return le.Value
+}
+
+func (ev *Evaluator) VisitPrintStmt(ps *T.PrintStmt) any {
+	res := ev.Evaluate(ps.NestedExpr)
+	fmt.Println(res)
+
+	return nil
+}
+
+func (ev *Evaluator) VisitExprStmt(es *T.ExprStmt) any {
+	_ = ev.Evaluate(es.NestedExpr)
+
+	return nil
 }
 
 func (ev *Evaluator) suitesTypeRequirement(t reflect.Kind, values ...any) bool {

@@ -7,7 +7,7 @@ import (
 	"github.com/destr4ct/int2/internal/int2/ast"
 	"github.com/destr4ct/int2/internal/int2/ast/rdparser"
 	"github.com/destr4ct/int2/internal/int2/interpreter"
-	"github.com/destr4ct/int2/internal/int2/interpreter/evaluator"
+	"github.com/destr4ct/int2/internal/int2/interpreter/runtime"
 	"github.com/destr4ct/int2/internal/int2/scanner"
 	"github.com/destr4ct/int2/internal/int2/scanner/baseline"
 )
@@ -56,7 +56,7 @@ func chooseParser() {
 }
 
 func chooseInterpreter() {
-	cfg.Interpreter = evaluator.Get()
+	cfg.Interpreter = runtime.Get()
 }
 
 func GetConfiguration() Int2Configuration {
