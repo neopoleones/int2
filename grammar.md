@@ -1,7 +1,11 @@
-program     ->  stmt* EOF
+program     -> declaration* EOF
+
+declaration -> varDecl | stmt
 stmt        -> printStmt | exprStmt
+
 printStmt   -> print expression ;
 exprStmt    -> expression ;
+varDecl     -> "var" IDENTIFIER ("=" expression)? ;
 
 expression  -> equality
 
@@ -10,4 +14,4 @@ comparison  -> term ((">" | ">=" | "<" | "<=") term)*
 term        -> factor (("+" | "-") factor)*
 factor      -> unary (("/" | "*") unary)*
 unary       -> ("!" | "-") unary | primary;
-primary     -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")";
+primary     -> IDENTIFIER | NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")";

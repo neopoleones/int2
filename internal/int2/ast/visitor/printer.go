@@ -1,6 +1,7 @@
 package visitor
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -36,6 +37,10 @@ func (ap *AstPrinter) Stringify(stmt T.Stmt) string {
 	return stmt.Accept(ap).(string)
 }
 
+func (ap *AstPrinter) VisitVariableExpr(be *T.VariableExpr) any {
+	return be.Name.Lexeme
+}
+
 func (ap *AstPrinter) VisitBinaryExpr(be *T.BinaryExpr) any {
 	return ap.wrap(be.Op.Lexeme, be.Left, be.Right)
 }
@@ -48,7 +53,7 @@ func (ap *AstPrinter) VisitGroupingExpr(be *T.GroupingExpr) any {
 	return ap.wrap("group", be.NestedExpr)
 }
 
-func (ap *AstPrinter) VisitLiteral(be *T.LiteralExpr) any {
+func (ap *AstPrinter) VisitLiteralExpr(be *T.LiteralExpr) any {
 	// Literal is value of [nil, float64, string]
 	if num, ok := be.Value.(float64); ok {
 		return strconv.FormatFloat(num, 'f', -1, 64)
@@ -71,6 +76,15 @@ func (ap *AstPrinter) VisitPrintStmt(stmt *T.PrintStmt) any {
 
 func (ap *AstPrinter) VisitExprStmt(stmt *T.ExprStmt) any {
 	return ap.wrap("expr", stmt.NestedExpr)
+}
+
+func (ap *AstPrinter) VisitVarStmt(stmt *T.VarStmt) any {
+	args := []T.Expr{}
+	if stmt.Initializer != nil {
+		args = append(args, stmt.Initializer)
+	}
+
+	return ap.wrap(fmt.Sprintf("var %s", stmt.Name.Lexeme), args...)
 }
 
 func NewAstPrinter() *AstPrinter {

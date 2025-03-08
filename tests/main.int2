@@ -1,4 +1,2 @@
-// Some operation 1+2
-print (("EVS"+"UTIN")=="CRYPTO");
-print 42;
-print ("hola");
+var a;
+print b;

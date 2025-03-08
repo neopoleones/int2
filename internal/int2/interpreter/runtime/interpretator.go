@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"github.com/destr4ct/int2/internal/int2/ast/T"
+	"github.com/destr4ct/int2/internal/int2/interpreter"
 	"github.com/destr4ct/int2/internal/int2/interpreter/evaluator"
 )
 
@@ -19,6 +20,8 @@ func (int2 *Interpretator) Interpret(statements []T.Stmt) {
 	}
 }
 
-func Get() *Interpretator {
-	return &Interpretator{}
+func Get(storage interpreter.Environ) *Interpretator {
+	return &Interpretator{
+		Evaluator: *evaluator.Get(storage),
+	}
 }

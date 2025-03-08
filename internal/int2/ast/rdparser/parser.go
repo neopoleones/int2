@@ -1,6 +1,8 @@
 package rdparser
 
 import (
+	"fmt"
+
 	"github.com/destr4ct/int2/internal/int2/ast/T"
 	"github.com/destr4ct/int2/internal/int2/token"
 )
@@ -26,9 +28,12 @@ func (rdp *RecursiveDescentParser) Parse(source []*token.Token) ([]T.Stmt, error
 	statements := make([]T.Stmt, 0)
 
 	for rdp.hasNextToken() {
-		stmt, err := rdp.parseStatement()
+		stmt, err := rdp.parseDeclaration()
 		if err != nil {
-			return statements, err
+			// TODO: group the errors and returning error-set at the end
+			fmt.Println(err)
+			rdp.synchronize()
+			continue
 		}
 
 		statements = append(statements, stmt)
@@ -39,6 +44,36 @@ func (rdp *RecursiveDescentParser) Parse(source []*token.Token) ([]T.Stmt, error
 
 func (rdp *RecursiveDescentParser) Reset() {
 	rdp.curr = 0
+}
+
+func (rdp *RecursiveDescentParser) parseDeclaration() (T.Stmt, error) {
+	if rdp.headMatchType(token.TVar) {
+		return rdp.parseVarDeclaration()
+	}
+
+	return rdp.parseStatement()
+}
+
+func (rdp *RecursiveDescentParser) parseVarDeclaration() (T.Stmt, error) {
+	identifier, err := rdp.consumeConcrete(token.TIdentifier, "expected identifier for variable")
+	if err != nil {
+		return nil, err
+	}
+
+	var initializer T.Expr
+	if rdp.headMatchType(token.TEqual) {
+		initializer, err = rdp.parseExpression()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	_, err = rdp.consumeConcrete(token.TSemicolon, "expected ';' after expression.")
+	if err != nil {
+		return nil, err
+	}
+
+	return T.NewVarStmt(identifier, initializer), nil
 }
 
 func (rdp *RecursiveDescentParser) parseStatement() (T.Stmt, error) {
@@ -199,6 +234,10 @@ func (rdp *RecursiveDescentParser) parsePrimaryExpr() (T.Expr, error) {
 		}
 
 		return T.NewGroupingExpr(expr), nil
+	}
+
+	if rdp.headMatchType(token.TIdentifier) {
+		return T.NewVariableExpr(rdp.previousToken()), nil
 	}
 
 	return nil, newASTError(rdp.headToken(), "expected expression")

@@ -5,7 +5,7 @@ type LiteralExpr struct {
 }
 
 func (li *LiteralExpr) Accept(v ExprVisitor) any {
-	return v.VisitLiteral(li)
+	return v.VisitLiteralExpr(li)
 }
 
 func NewLiteralExpr(v any) *LiteralExpr {

@@ -4,7 +4,8 @@ type ExprVisitor interface {
 	VisitBinaryExpr(*BinaryExpr) any
 	VisitUnaryExpr(*UnaryExpr) any
 	VisitGroupingExpr(*GroupingExpr) any
-	VisitLiteral(*LiteralExpr) any
+	VisitLiteralExpr(*LiteralExpr) any
+	VisitVariableExpr(*VariableExpr) any
 }
 
 type Expr interface {

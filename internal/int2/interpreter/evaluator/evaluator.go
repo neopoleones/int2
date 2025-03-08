@@ -10,6 +10,7 @@ import (
 )
 
 type Evaluator struct {
+	storage interpreter.Environ
 }
 
 func (ev *Evaluator) Evaluate(expr T.Expr) any {
@@ -98,8 +99,17 @@ func (ev *Evaluator) VisitGroupingExpr(ge *T.GroupingExpr) any {
 	return ev.Evaluate(ge.NestedExpr)
 }
 
-func (ev *Evaluator) VisitLiteral(le *T.LiteralExpr) any {
+func (ev *Evaluator) VisitLiteralExpr(le *T.LiteralExpr) any {
 	return le.Value
+}
+
+func (ev *Evaluator) VisitVariableExpr(ve *T.VariableExpr) any {
+	v, err := ev.storage.Get(ve.Name.Lexeme, interpreter.EnvBackgroundCtx)
+	if err != nil {
+		interpreter.Raise(err.Error())
+	}
+
+	return v
 }
 
 func (ev *Evaluator) VisitPrintStmt(ps *T.PrintStmt) any {
@@ -112,6 +122,18 @@ func (ev *Evaluator) VisitPrintStmt(ps *T.PrintStmt) any {
 func (ev *Evaluator) VisitExprStmt(es *T.ExprStmt) any {
 	_ = ev.Evaluate(es.NestedExpr)
 
+	return nil
+}
+
+func (ev *Evaluator) VisitVarStmt(vs *T.VarStmt) any {
+	var initValue any
+	if vs.Initializer != nil {
+		initValue = ev.Evaluate(vs.Initializer)
+	}
+
+	if err := ev.storage.Set(vs.Name.Lexeme, initValue, interpreter.EnvBackgroundCtx); err != nil {
+		interpreter.Raise(err.Error())
+	}
 	return nil
 }
 
@@ -145,6 +167,8 @@ func (ev *Evaluator) isTrue(v any) bool {
 	return true
 }
 
-func Get() *Evaluator {
-	return &Evaluator{}
+func Get(storage interpreter.Environ) *Evaluator {
+	return &Evaluator{
+		storage: storage,
+	}
 }

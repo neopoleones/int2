@@ -7,6 +7,7 @@ import (
 	"github.com/destr4ct/int2/internal/int2/ast"
 	"github.com/destr4ct/int2/internal/int2/ast/rdparser"
 	"github.com/destr4ct/int2/internal/int2/interpreter"
+	"github.com/destr4ct/int2/internal/int2/interpreter/env/ts"
 	"github.com/destr4ct/int2/internal/int2/interpreter/runtime"
 	"github.com/destr4ct/int2/internal/int2/scanner"
 	"github.com/destr4ct/int2/internal/int2/scanner/baseline"
@@ -18,6 +19,7 @@ var cfg Int2Configuration
 var chooseList = []func(){
 	chooseParser,
 	chooseScanner,
+	chooseStorage,
 	chooseInterpreter,
 }
 
@@ -39,6 +41,7 @@ type Int2Configuration struct {
 	Parser     ast.Parser
 
 	Interpreter interpreter.Interpreter
+	Storage     interpreter.Environ
 }
 
 func chooseScanner() {
@@ -56,7 +59,11 @@ func chooseParser() {
 }
 
 func chooseInterpreter() {
-	cfg.Interpreter = runtime.Get()
+	cfg.Interpreter = runtime.Get(cfg.Storage)
+}
+
+func chooseStorage() {
+	cfg.Storage = ts.NewEnv()
 }
 
 func GetConfiguration() Int2Configuration {
